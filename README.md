@@ -9,7 +9,7 @@ To use the script, follow these steps:
 1. Ensure you have Multipass installed on your machine. If not, you can download it from [Multipass official website](https://multipass.run/).
 2. Ensure you have kubectl installed on your machine. If not, you can find installation instruction in [offical documentation](https://kubernetes.io/docs/tasks/tools/).
 3. Clone this repository to your local machine.
-4. Navigate to the cloned repository's directory in your terminal.
+4. Navigate to the cloned repository in your terminal (`cd kubernetes-security-guide`)
 5. Run the script using the command `./bootstrap-kubernetes.sh` (or `.\bootstrap-kubernetes.ps1` for Windows).
 
 ### Cleaning up
