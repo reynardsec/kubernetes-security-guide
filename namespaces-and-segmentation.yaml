@@ -1,0 +1,195 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config-team1-1
+  namespace: team1
+data:
+  index.html: |
+    nginx 1.1 in team1 namespace
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config-team1-2
+  namespace: team1
+data:
+  index.html: |
+    nginx 1.2 in team1 namespace
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config-team2-1
+  namespace: team2
+data:
+  index.html: |
+    nginx 2.1 in team2 namespace
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config-team2-2
+  namespace: team2
+data:
+  index.html: |
+    nginx 2.2 in team2 namespace
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-team1-1
+  namespace: team1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-team1-1
+  template:
+    metadata:
+      labels:
+        app: nginx-team1-1
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/index.html
+          name: config-volume
+          subPath: index.html
+      volumes:
+      - name: config-volume
+        configMap:
+          name: nginx-config-team1-1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-team1-2
+  namespace: team1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-team1-2
+  template:
+    metadata:
+      labels:
+        app: nginx-team1-2
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/index.html
+          name: config-volume
+          subPath: index.html
+      volumes:
+      - name: config-volume
+        configMap:
+          name: nginx-config-team1-2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-team2-1
+  namespace: team2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-team2-1
+  template:
+    metadata:
+      labels:
+        app: nginx-team2-1
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/index.html
+          name: config-volume
+          subPath: index.html
+      volumes:
+      - name: config-volume
+        configMap:
+          name: nginx-config-team2-1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment-team2-2
+  namespace: team2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-team2-2
+  template:
+    metadata:
+      labels:
+        app: nginx-team2-2
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/index.html
+          name: config-volume
+          subPath: index.html
+      volumes:
+      - name: config-volume
+        configMap:
+          name: nginx-config-team2-2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service-team1-1
+  namespace: team1
+spec:
+  selector:
+    app: nginx-team1-1
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service-team1-2
+  namespace: team1
+spec:
+  selector:
+    app: nginx-team1-2
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service-team2-1
+  namespace: team2
+spec:
+  selector:
+    app: nginx-team2-1
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service-team2-2
+  namespace: team2
+spec:
+  selector:
+    app: nginx-team2-2
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
