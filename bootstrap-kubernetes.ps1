@@ -225,13 +225,12 @@ Check-And-Execute -CommandToExecute "kubectl apply -f allow-anonymous.yaml"
 Check-And-Execute -CommandToExecute "kubectl create namespace team1"
 Check-And-Execute -CommandToExecute "kubectl create namespace team2"
 Check-And-Execute -CommandToExecute "kubectl apply -f bob-external.yaml"
-Check-And-Execute -CommandToExecute "kubectl apply -f bob-external.yaml"
 Check-And-Execute -CommandToExecute "kubectl certificate approve bob-external"
 Check-And-Execute -CommandToExecute "kubectl create role role-bob-external --verb=create --verb=get --verb=list --verb=update --verb=delete --resource=pod"
 Check-And-Execute -CommandToExecute "kubectl create rolebinding rolebinding-bob-external --role=role-bob-external --user=bob-external"
 Check-And-Execute -CommandToExecute "kubectl apply -f namespaces-and-segmentation.yaml"
 Check-And-Execute -CommandToExecute "kubectl apply -f external-contractor.yaml"
-Check-And-Execute -CommandToExecute "kubectl get csr | Select-String -Pattern Pending | ForEach-Object { $_ -split ' ' } | ForEach-Object { kubectl certificate approve $_[0] }"
+kubectl get csr -o name | ForEach-Object { kubectl certificate approve $_ }
 
 multipass exec control-plane -- bash -c "sudo sed -i '/- kube-apiserver/a \    - --anonymous-auth=true' /etc/kubernetes/manifests/kube-apiserver.yaml"
 
