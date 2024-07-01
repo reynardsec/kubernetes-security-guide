@@ -149,7 +149,10 @@ multipass exec $CONTROL_PLANE_NAME -- bash -c 'mkdir -p ~/.kube'
 multipass exec $CONTROL_PLANE_NAME -- bash -c 'sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config'
 multipass exec $CONTROL_PLANE_NAME -- bash -c 'sudo chown $(id -u):$(id -g) ~/.kube/config'
 
-mkdir -p "$HOME/.kube"
+if (-Not (Test-Path "$HOME/.kube")) {
+    mkdir "$HOME/.kube"
+}
+
 multipass exec $CONTROL_PLANE_NAME -- bash -c 'sudo cat /etc/kubernetes/admin.conf' > "$HOME/.kube/config-$CLUSTER_NAME"
 
 $CONFIG_FILE = "$HOME/.kube/config-$CLUSTER_NAME"
@@ -262,6 +265,6 @@ if (-not (Test-Path "$HOME/.kube/config")) {
 }
 
 Write-Host "Done. Your cluster-info:"
-kubectl cluster-info
+Check-And-Execute -CommandToExecute "kubectl cluster-info"
 Write-Host "and nodes:"
-kubectl get nodes
+Check-And-Execute -CommandToExecute "kubectl get nodes"
