@@ -33,6 +33,9 @@ case ${answer:0:1} in
     ;;
 esac
 
+# Update images list
+multipass find --force-update >> /dev/null 2>&1
+
 # Create control plane and worker VMs
 multipass launch 20.04 --name $CONTROL_PLANE_NAME --cpus 2 --memory 3G --disk 20G
 for WORKER in "${WORKER_NAMES[@]}"; do
@@ -47,15 +50,17 @@ multipass list
 configure_static_ip() {
   local vm_name=$1
   local nameserver=$2
+  
 
-  local current_ip=$(multipass exec $vm_name -- ip addr show ens3 | grep 'inet ' | awk '{print $2}')
+  interface=$(multipass exec $vm_name -- ls /sys/class/net | grep -v -E "lo|docker")
+  local current_ip=$(multipass exec $vm_name -- ip addr show $interface | grep 'inet ' | awk '{print $2}')
   local current_gateway=$(multipass exec $vm_name -- ip route | grep default | awk '{print $3}')
 
   multipass exec $vm_name -- bash -c "echo \"
 network:
   version: 2
   ethernets:
-    ens3:
+    $interface:
       dhcp4: no
       dhcp6: no
       addresses:
@@ -124,7 +129,8 @@ done
 
 echo "Initializing Kubernetes cluster on control-plane..."
 
-current_ip=$(multipass exec $CONTROL_PLANE_NAME -- ip addr show ens3 | grep 'inet ' | awk '{print $2}')
+interface=$(multipass exec $CONTROL_PLANE_NAME -- ls /sys/class/net | grep -v -E "lo|docker")
+current_ip=$(multipass exec $CONTROL_PLANE_NAME -- ip addr show $interface | grep 'inet ' | awk '{print $2}')
 current_ip=$(echo "$current_ip" | sed 's#/.*##')
 
 multipass exec $CONTROL_PLANE_NAME -- bash -c "cat <<EOF | sudo tee /home/ubuntu/kubeadm-config.yaml
