@@ -163,7 +163,8 @@ multipass exec $CONTROL_PLANE_NAME -- bash -c 'mkdir -p ~/.kube'
 multipass exec $CONTROL_PLANE_NAME -- bash -c 'sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config'
 multipass exec $CONTROL_PLANE_NAME -- bash -c 'sudo chown $(id -u):$(id -g) ~/.kube/config'
 
-mkdir -p $HOME/.kube
+[ ! -d "$HOME/.kube" ] && mkdir -p "$HOME/.kube"
+
 multipass exec $CONTROL_PLANE_NAME -- bash -c 'sudo cat /etc/kubernetes/admin.conf' > $HOME/.kube/config-$CLUSTER_NAME
 
 CONFIG_FILE="$HOME/.kube/config-$CLUSTER_NAME"
@@ -173,7 +174,6 @@ sed -i "" "s/kubernetes-admin@kubernetes/$CLUSTER_NAME/g" $CONFIG_FILE
 export KUBECONFIG=$CONFIG_FILE
 
 echo $KUBECONFIG
-
 
 kubectl config get-contexts
 kubectl config use-context $CLUSTER_NAME
